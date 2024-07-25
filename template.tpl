@@ -463,6 +463,8 @@ function getPiwikParams(eventNameData) {
     // Required parameters
     idsite: data.siteId,
     rec: eventData.rec || 1,
+    ts_n: 'sgtm_stape',
+    ts_v: '1.0.1',
 
     // Recommended parameters
     action_name:
