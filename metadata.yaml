@@ -1,6 +1,8 @@
 homepage: 'https://stape.io/'
 documentation: 'https://github.com/stape-io/piwik-pro-tag'
 versions:
+  - sha: e58fae01bf186abf3e65329cf6bff6b3c4336d2e
+    changeNotes: Added consent section.
   - sha: e1dfe5bc941f5d2abe5e0a7e00995ebe046de35f
     changeNotes: Add library name.
   - sha: 86f251f11faca1dd62b9ae86f5cbfad7ef85bbda
