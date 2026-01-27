@@ -1,4 +1,5 @@
 homepage: 'https://stape.io/'
+documentation: 'https://github.com/stape-io/piwik-pro-tag'
 versions:
   - sha: e1dfe5bc941f5d2abe5e0a7e00995ebe046de35f
     changeNotes: Add library name.

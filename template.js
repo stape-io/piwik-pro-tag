@@ -1,26 +1,32 @@
-const logToConsole = require('logToConsole');
-const getContainerVersion = require('getContainerVersion');
-const getRequestHeader = require('getRequestHeader');
-const getAllEventData = require('getAllEventData');
 const encodeUriComponent = require('encodeUriComponent');
+const generateRandom = require('generateRandom');
+const getAllEventData = require('getAllEventData');
+const getContainerVersion = require('getContainerVersion');
+const getCookieValues = require('getCookieValues');
+const getRequestHeader = require('getRequestHeader');
+const getTimestampMillis = require('getTimestampMillis');
+const getType = require('getType');
 const JSON = require('JSON');
+const logToConsole = require('logToConsole');
+const makeString = require('makeString');
 const Object = require('Object');
 const sendHttpRequest = require('sendHttpRequest');
-const getType = require('getType');
-const getCookieValues = require('getCookieValues');
 const setCookie = require('setCookie');
-const getTimestampMillis = require('getTimestampMillis');
-const generateRandom = require('generateRandom');
-const makeString = require('makeString');
+
+/*==============================================================================
+==============================================================================*/
 
 const isLoggingEnabled = determinateIsLoggingEnabled();
 const traceId = isLoggingEnabled ? getRequestHeader('trace-id') : undefined;
-
 const eventData = getAllEventData();
 const eventNameData = getEventNameData();
 const eventName = eventNameData.e_n;
-
 let postUrl = data.trackingUrl;
+
+if (!isConsentGivenOrNotRequired(data, eventData)) {
+  return data.gtmOnSuccess();
+}
+
 if (postUrl.indexOf('ppms.php', postUrl.length - 10) === -1) {
   postUrl = postUrl + 'ppms.php';
 }
@@ -41,7 +47,7 @@ if (queryParamsString) {
 }
 
 const headers = {
-  'Content-Type': 'text/plain;charset=UTF-8',
+  'Content-Type': 'text/plain;charset=UTF-8'
 };
 
 if (data.requestHeaders && data.requestHeaders.length) {
@@ -59,14 +65,14 @@ if (isLoggingEnabled) {
       EventName: eventName,
       RequestMethod: 'GET',
       RequestUrl: postUrl,
-      RequestHeaders: headers,
+      RequestHeaders: headers
     })
   );
 }
 
 sendHttpRequest(postUrl, {
   headers: headers,
-  method: 'GET',
+  method: 'GET'
 })
   .then((response) => {
     if (isLoggingEnabled) {
@@ -78,7 +84,7 @@ sendHttpRequest(postUrl, {
           EventName: eventName,
           ResponseStatusCode: response.statusCode,
           ResponseHeaders: response.headers,
-          ResponseBody: response.body,
+          ResponseBody: response.body
         })
       );
     }
@@ -100,35 +106,9 @@ if (data.useOptimisticScenario) {
   data.gtmOnSuccess();
 }
 
-function objectToQueryString(obj) {
-  return Object.keys(obj)
-    .map((key) =>
-      isValidParam(obj[key]) ? key + '=' + encodeUriComponent(obj[key]) : key
-    )
-    .join('&');
-}
-
-function determinateIsLoggingEnabled() {
-  const containerVersion = getContainerVersion();
-  const isDebug = !!(
-    containerVersion &&
-    (containerVersion.debugMode || containerVersion.previewMode)
-  );
-
-  if (!data.logType) {
-    return isDebug;
-  }
-
-  if (data.logType === 'no') {
-    return false;
-  }
-
-  if (data.logType === 'debug') {
-    return isDebug;
-  }
-
-  return data.logType === 'always';
-}
+/*==============================================================================
+Vendor related functions
+==============================================================================*/
 
 function getEventNameData() {
   if (data.eventType === 'inherit') {
@@ -140,20 +120,20 @@ function getEventNameData() {
       return {
         e_c: '',
         e_a: '',
-        e_n: 'page_view',
+        e_n: 'page_view'
       };
     }
 
     return {
       e_c: eventData.event_category,
       e_a: eventData.event_action,
-      e_n: eventData.event_name,
+      e_n: eventData.event_name
     };
   } else {
     return {
       e_c: data.eventCategory,
       e_a: data.eventAction,
-      e_n: data.eventName,
+      e_n: data.eventName
     };
   }
 }
@@ -170,14 +150,14 @@ function getECItems() {
           item.item_name,
           item.item_category,
           item.price,
-          item.quantity,
+          item.quantity
         ])
       )
     : '';
 }
 
 function getVisitorId() {
-  let piwikClientIdName = '_pk_.'+ data.siteId;
+  let piwikClientIdName = '_pk_.' + data.siteId;
   let piwikClientId = getCookieValues(piwikClientIdName)[0];
   if (!piwikClientId) piwikClientId = eventData._id;
 
@@ -185,9 +165,7 @@ function getVisitorId() {
     piwikClientId = getTimestampMillis() + '' + generateRandom(1000000000, 2147483647);
   }
 
-  piwikClientId = piwikClientId
-    ? makeString(piwikClientId).slice(0, 16)
-    : '';
+  piwikClientId = piwikClientId ? makeString(piwikClientId).slice(0, 16) : '';
 
   if (piwikClientId) {
     const cookieOptions = {
@@ -310,7 +288,7 @@ function getPiwikParams(eventNameData) {
     ma_w: eventData.ma_w,
     ma_h: eventData.ma_h,
     ma_fs: eventData.ma_fs,
-    ma_se: eventData.ma_se,
+    ma_se: eventData.ma_se
   };
 
   return Object.keys(piwikParams).reduce((acc, key) => {
@@ -321,7 +299,46 @@ function getPiwikParams(eventNameData) {
   }, {});
 }
 
+/*==============================================================================
+Helpers
+==============================================================================*/
+
+function isConsentGivenOrNotRequired(data, eventData) {
+  if (data.adStorageConsent !== 'required') return true;
+  if (eventData.consent_state) return !!eventData.consent_state.analytics_storage;
+  const xGaGcs = eventData['x-ga-gcs'] || ''; // x-ga-gcs is a string like "G110"
+  return xGaGcs[3] === '1'; // The fourth character indicates analytics_storage consent
+}
+
 function isValidParam(value) {
   const valueType = getType(value);
   return valueType !== 'undefined' && valueType !== 'null' && value !== '';
+}
+
+function objectToQueryString(obj) {
+  return Object.keys(obj)
+    .map((key) => (isValidParam(obj[key]) ? key + '=' + encodeUriComponent(obj[key]) : key))
+    .join('&');
+}
+
+function determinateIsLoggingEnabled() {
+  const containerVersion = getContainerVersion();
+  const isDebug = !!(
+    containerVersion &&
+    (containerVersion.debugMode || containerVersion.previewMode)
+  );
+
+  if (!data.logType) {
+    return isDebug;
+  }
+
+  if (data.logType === 'no') {
+    return false;
+  }
+
+  if (data.logType === 'debug') {
+    return isDebug;
+  }
+
+  return data.logType === 'always';
 }
