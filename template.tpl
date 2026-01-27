@@ -871,13 +871,7 @@ ___SERVER_PERMISSIONS___
 ___TESTS___
 
 scenarios: []
-setup: |-
-  const mockData = {
-    client_id: 'cbgvsuyicjkbhsdgvcgyuhkds'
-  };
-
-  // Call runCode to run the template's code.
-  runCode(mockData);
+setup: ''
 
 
 ___NOTES___
