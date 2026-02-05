@@ -229,7 +229,7 @@ ___TEMPLATE_PARAMETERS___
     "subParams": [
       {
         "type": "RADIO",
-        "name": "adStorageConsent",
+        "name": "analyticsStorageConsent",
         "displayName": "",
         "radioItems": [
           {
@@ -238,8 +238,8 @@ ___TEMPLATE_PARAMETERS___
           },
           {
             "value": "required",
-            "displayValue": "Send data in case marketing consent given",
-            "help": "Aborts the tag execution if marketing consent (\u003ci\u003ead_storage\u003c/i\u003e Google Consent Mode or Stape\u0027s Data Tag parameter) is not given."
+            "displayValue": "Send data in case analytics consent given",
+            "help": "Aborts the tag execution if analytics consent (\u003ci\u003eanalytics_storage\u003c/i\u003e Google Consent Mode or Stape\u0027s Data Tag parameter) is not given."
           }
         ],
         "simpleValueType": true,

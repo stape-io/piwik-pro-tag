@@ -304,7 +304,7 @@ Helpers
 ==============================================================================*/
 
 function isConsentGivenOrNotRequired(data, eventData) {
-  if (data.adStorageConsent !== 'required') return true;
+  if (data.analyticsStorageConsent !== 'required') return true;
   if (eventData.consent_state) return !!eventData.consent_state.analytics_storage;
   const xGaGcs = eventData['x-ga-gcs'] || ''; // x-ga-gcs is a string like "G110"
   return xGaGcs[3] === '1'; // The fourth character indicates analytics_storage consent
