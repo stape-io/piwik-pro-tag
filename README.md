@@ -15,3 +15,6 @@ With to Piwik Pro Tag, you can easily integrate Piwik into your server-side Goog
 ## Open Source
 
 The **Piwik Pro Tag** for GTM Server Side is developed and maintained by [Stape Team](https://stape.io/) under the Apache 2.0 license.
+
+### GTM Gallery Status
+🟢 [Listed](https://tagmanager.google.com/gallery/#/owners/stape-io/templates/piwik-pro-tag)
