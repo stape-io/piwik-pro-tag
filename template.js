@@ -1,13 +1,10 @@
 const encodeUriComponent = require('encodeUriComponent');
 const generateRandom = require('generateRandom');
 const getAllEventData = require('getAllEventData');
-const getContainerVersion = require('getContainerVersion');
 const getCookieValues = require('getCookieValues');
-const getRequestHeader = require('getRequestHeader');
 const getTimestampMillis = require('getTimestampMillis');
 const getType = require('getType');
 const JSON = require('JSON');
-const logToConsole = require('logToConsole');
 const makeString = require('makeString');
 const Object = require('Object');
 const sendHttpRequest = require('sendHttpRequest');
@@ -16,11 +13,8 @@ const setCookie = require('setCookie');
 /*==============================================================================
 ==============================================================================*/
 
-const isLoggingEnabled = determinateIsLoggingEnabled();
-const traceId = isLoggingEnabled ? getRequestHeader('trace-id') : undefined;
 const eventData = getAllEventData();
 const eventNameData = getEventNameData();
-const eventName = eventNameData.e_n;
 let postUrl = data.trackingUrl;
 
 if (!isConsentGivenOrNotRequired(data, eventData)) {
@@ -56,38 +50,11 @@ if (data.requestHeaders && data.requestHeaders.length) {
   });
 }
 
-if (isLoggingEnabled) {
-  logToConsole(
-    JSON.stringify({
-      Name: 'PiwikProTag',
-      Type: 'Request',
-      TraceId: traceId,
-      EventName: eventName,
-      RequestMethod: 'GET',
-      RequestUrl: postUrl,
-      RequestHeaders: headers
-    })
-  );
-}
-
 sendHttpRequest(postUrl, {
   headers: headers,
   method: 'GET'
 })
   .then((response) => {
-    if (isLoggingEnabled) {
-      logToConsole(
-        JSON.stringify({
-          Name: 'PiwikProTag',
-          Type: 'Response',
-          TraceId: traceId,
-          EventName: eventName,
-          ResponseStatusCode: response.statusCode,
-          ResponseHeaders: response.headers,
-          ResponseBody: response.body
-        })
-      );
-    }
     if (!data.useOptimisticScenario) {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         data.gtmOnSuccess();
@@ -312,33 +279,11 @@ function isConsentGivenOrNotRequired(data, eventData) {
 
 function isValidParam(value) {
   const valueType = getType(value);
-  return valueType !== 'undefined' && valueType !== 'null' && value !== '';
+  return valueType !== 'undefined' && valueType !== 'null' && value !== '' && value === value;
 }
 
 function objectToQueryString(obj) {
   return Object.keys(obj)
     .map((key) => (isValidParam(obj[key]) ? key + '=' + encodeUriComponent(obj[key]) : key))
     .join('&');
-}
-
-function determinateIsLoggingEnabled() {
-  const containerVersion = getContainerVersion();
-  const isDebug = !!(
-    containerVersion &&
-    (containerVersion.debugMode || containerVersion.previewMode)
-  );
-
-  if (!data.logType) {
-    return isDebug;
-  }
-
-  if (data.logType === 'no') {
-    return false;
-  }
-
-  if (data.logType === 'debug') {
-    return isDebug;
-  }
-
-  return data.logType === 'always';
 }
