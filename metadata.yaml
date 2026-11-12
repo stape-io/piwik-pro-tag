@@ -1,6 +1,8 @@
 homepage: 'https://stape.io/'
 documentation: 'https://github.com/stape-io/piwik-pro-tag'
 versions:
+  - sha: aa59e3a74ac878ea100b3eb7a4cf4641a1b90445
+    changeNotes: New features added as Ecommerce, Custom Dimensions and Variables. General tag update.
   - sha: e37649bef36c5135259b4138cc2b657f35f55b37
     changeNotes: Logging removal.
   - sha: ad09fab7b16fdf967a76e2ef3e6b020dbc3018c8
